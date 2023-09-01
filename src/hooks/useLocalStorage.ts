@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-// TODO: Make to understand
 export const useLocalStorage = <T>(
     key: string,
     initialValue: T | (() => T)
