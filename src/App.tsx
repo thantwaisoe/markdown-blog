@@ -1,27 +1,27 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { Container } from 'react-bootstrap'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import NewNote from './pages/NewNote'
-import { useLocalStorage } from './hooks/useLocalStorage';
-import { useMemo } from 'react';
+import { useLocalStorage } from './hooks/useLocalStorage'
+import { useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
-import NoteList from './pages/NoteList';
-import NoteLayout from './pages/NoteLayout';
-import NoteDetail from './components/NoteDetail';
-import EditNote from './pages/EditNote';
+import NoteList from './pages/NoteList'
+import NoteLayout from './pages/NoteLayout'
+import NoteDetail from './components/NoteDetail'
+import EditNote from './pages/EditNote'
 
 export type Note = {
   id: string
 } & NoteData
 
 export type NoteData = {
-  title: string,
-  markdown: string,
+  title: string
+  markdown: string
   tags: Tag[]
 }
 
 export type Tag = {
-  id: string,
+  id: string
   label: string
 }
 
@@ -30,8 +30,8 @@ export type RawNote = {
 } & RawNoteData
 
 export type RawNoteData = {
-  title: string,
-  markdown: string,
+  title: string
+  markdown: string
   tagsIds: string[]
 }
 
@@ -40,36 +40,39 @@ const App = () => {
   const [tags, setTags] = useLocalStorage<Tag[]>('TAGS', [])
 
   const notesWithTags = useMemo(() => {
-    return notes.map(note => {
-      return { ...note, tags: tags.filter(t => note.tagsIds.includes(t.id)) }
+    return notes.map((note) => {
+      return {
+        ...note,
+        tags: tags.filter((t) => note.tagsIds.includes(t.id)),
+      }
     })
   }, [notes, tags])
 
   //For Creating Notes
   const createNotes = ({ tags, ...data }: NoteData) => {
-    setNotes(prevNotes => {
-      return [...prevNotes,
-      {
-        ...data,
-        id: uuidV4(),
-        tagsIds: tags.map(t => t.id)
-      }
+    setNotes((prevNotes) => {
+      return [
+        ...prevNotes,
+        {
+          ...data,
+          id: uuidV4(),
+          tagsIds: tags.map((t) => t.id),
+        },
       ]
     })
   }
   //* Adding new TAGS into LocalStorage
   const onAddTag = (tag: Tag) => {
-    setTags(prev => [...prev, tag])
+    setTags((prev) => [...prev, tag])
   }
   const updateNote = (id: string, { tags, ...data }: NoteData) => {
-    setNotes(prevNotes => {
-
-      return prevNotes.map(note => {
+    setNotes((prevNotes) => {
+      return prevNotes.map((note) => {
         if (note.id === id) {
           return {
             ...note,
             ...data,
-            tagsIds: tags.map(t => t.id)
+            tagsIds: tags.map((t) => t.id),
           }
         } else {
           return note
@@ -78,17 +81,46 @@ const App = () => {
     })
   }
   return (
-    <Container className='my-4'>
+    <Container className="my-4">
       <Routes>
-        <Route path='/' element={<NoteList notes={notesWithTags} availableTags={tags} setNotes={setNotes} setTags={setTags} />} />
-        <Route path='/new' element={<NewNote onSubmit={createNotes} onAddTag={onAddTag} availableTags={tags} />} />
-        <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
+        <Route
+          path="/"
+          element={
+            <NoteList
+              notes={notesWithTags}
+              availableTags={tags}
+              setTags={setTags}
+            />
+          }
+        />
+        <Route
+          path="/new"
+          element={
+            <NewNote
+              onSubmit={createNotes}
+              onAddTag={onAddTag}
+              availableTags={tags}
+            />
+          }
+        />
+        <Route
+          path="/:id"
+          element={<NoteLayout notes={notesWithTags} />}
+        >
           <Route index element={<NoteDetail setNotes={setNotes} />} />
-          <Route path='edit' element={<EditNote onSubmit={updateNote} onAddTag={onAddTag} availableTags={tags} />} />
+          <Route
+            path="edit"
+            element={
+              <EditNote
+                onSubmit={updateNote}
+                onAddTag={onAddTag}
+                availableTags={tags}
+              />
+            }
+          />
         </Route>
         {/* Default Route */}
-        <Route path='*' element={<Navigate to='/' />} />
-
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Container>
   )
